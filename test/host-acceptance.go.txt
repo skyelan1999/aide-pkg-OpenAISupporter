@@ -1,0 +1,102 @@
+package server
+
+import (
+    "encoding/json"
+    "math"
+    "os"
+    "path/filepath"
+    "testing"
+    "time"
+)
+
+// Run inside a clean Aide checkout with AIDE_OPENAI_RELEASE_ZIP set.
+// This exercises the production ZIP parser, upload handler and accounting.
+func TestOpenAIReleaseActualBundle(t *testing.T) {
+    raw, err := os.ReadFile(os.Getenv("AIDE_OPENAI_RELEASE_ZIP"))
+    if err != nil { t.Fatal(err) }
+    manifest, _, err := parsePluginBundle(raw)
+    if err != nil { t.Fatal(err) }
+    if manifest.ID != "openai-supporter" || manifest.Version != "0.1.0" {
+        t.Fatalf("unexpected identity: %+v", manifest)
+    }
+    bundles := t.TempDir()
+    if err = os.WriteFile(filepath.Join(bundles, "openai.zip"), raw, 0600); err != nil { t.Fatal(err) }
+    t.Setenv("AIDE_SUPPORTER_ZIP_DIR", bundles)
+    a := testApp(t)
+    installed := supporterInstall(t, a, "openai")
+    base := "https://api.openai.com/v1"
+    now := time.Now()
+    for _, model := range []string{"gpt-6-astra", "gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-luna"} {
+        short := a.providerQuote(base, model, 272000, now)
+        long := a.providerQuote(base, model, 272001, now)
+        if short == nil || long == nil || short.Currency != "USD" || long.Currency != "USD" || short.Source != installed.ID {
+            t.Fatalf("missing USD quote for %s: %+v %+v", model, short, long)
+        }
+        if long.Tier.PriceIn != short.Tier.PriceIn*2 || *long.Tier.PriceInCacheHit != *short.Tier.PriceInCacheHit*2 || long.Tier.PriceOut != short.Tier.PriceOut*1.5 {
+            t.Fatalf("wrong long-context tier for %s", model)
+        }
+        if a.providerQuote(base, model, 1050000, now) == nil || a.providerQuote(base, model, 1050001, now) != nil {
+            t.Fatalf("incorrect upper bound for %s", model)
+        }
+    }
+    for _, bad := range []string{
+        "http://api.openai.com/v1", "https://api.openai.com", "https://proxy.invalid/v1",
+        "https://api.openai.com.evil.invalid/v1", "https://api.openai.com/v10",
+        "https://api.openai.com/v1/extra", "https://api.openai.com:8443/v1",
+        "https://user@api.openai.com/v1", "https://api.openai.com/v1?q=x",
+        "https://api.openai.com/v1#x", "https://api.openai.com/v1/../v1",
+    } {
+        if a.providerQuote(bad, "gpt-6.1-sol", 100, now) != nil { t.Fatal("bad endpoint accepted", bad) }
+    }
+    for _, good := range []string{base, base+"/", "https://api.openai.com:443/v1"} {
+        if a.providerQuote(good, "gpt-6.1-sol", 100, now) == nil { t.Fatal("valid endpoint rejected", good) }
+    }
+    for _, unknown := range []string{"gpt-6.1-sol-preview", "gpt-6-sol", "gpt-image-2.5-sunburst", "ft:gpt-6.1-sol:custom"} {
+        if a.providerQuote(base, unknown, 100, now) != nil { t.Fatal("unknown model guessed", unknown) }
+    }
+    a.settings.ModelProviders = []ModelProvider{{ID:"openai", BaseURL:base}}
+    balance := request(a, "GET", "/api/balance?providerId=openai", nil)
+    requireStatus(t, balance, 200)
+    var balanceData map[string]any
+    if err = json.Unmarshal(balance.Body.Bytes(), &balanceData); err != nil || balanceData["supported"] != false {
+        t.Fatalf("balance must be unsupported: %s %v", balance.Body.String(), err)
+    }
+    for _, tc := range []struct { input, hit int; cost float64 }{
+        {272000,72000,1.4072}, {272001,72001,2.3144002},
+    } {
+        a.recordTokenUsage(TokenUsage{Provider:base, Model:"gpt-6.1-sol", Prompt:tc.input,
+            CacheHit:tc.hit, CacheMiss:200000, CacheKnown:true, Completion:100000, Total:tc.input+100000})
+        got := supporterLast(a)
+        if got.Currency != "USD" || math.Abs(got.Cost-tc.cost)>1e-9 {
+            t.Fatalf("wrong cache/tier snapshot: %+v want %.9f", got, tc.cost)
+        }
+    }
+    a.pricing.Rates["manual-cny"] = Pricing{PriceIn:7, Currency:"CNY"}
+    a.recordTokenUsage(TokenUsage{Provider:"https://manual.invalid/v1", Model:"manual-cny", Prompt:1000000, Total:1000000})
+    stats := request(a, "GET", "/api/token-stats", nil)
+    requireStatus(t, stats, 200)
+    var data map[string]any
+    if err = json.Unmarshal(stats.Body.Bytes(), &data); err != nil { t.Fatal(err) }
+    costs := data["costByCurrency"].(map[string]any)
+    if math.Abs(costs["USD"].(float64)-3.7216002)>1e-9 || costs["CNY"] != float64(7) || data["cost"] != float64(7) {
+        t.Fatalf("currencies mixed: %s", stats.Body.String())
+    }
+    a.mu.Lock()
+    for i := range a.pluginRegistry.Plugins {
+        if a.pluginRegistry.Plugins[i].ID == installed.ID { a.pluginRegistry.Plugins[i].Enabled = false }
+    }
+    a.mu.Unlock()
+    if a.providerQuote(base, "gpt-6.1-sol", 100, now) != nil { t.Fatal("disabled plugin still priced") }
+    a.pricing.Rates["gpt-6.1-sol"] = Pricing{PriceIn:3, PriceOut:12, Currency:"USD"}
+    a.recordTokenUsage(TokenUsage{Provider:base, Model:"gpt-6.1-sol", Prompt:1000000, Total:1000000})
+    if got := supporterLast(a); got.Currency != "USD" || got.Cost != 3 || got.RateSource != "custom" {
+        t.Fatalf("manual fallback lost: %+v", got)
+    }
+    a.mu.Lock()
+    for i := range a.pluginRegistry.Plugins {
+        if a.pluginRegistry.Plugins[i].ID == installed.ID { a.pluginRegistry.Plugins[i].Enabled = true }
+    }
+    a.mu.Unlock()
+    if err = os.Rename(filepath.Join(a.pluginsPath, installed.ID), filepath.Join(a.pluginsPath, installed.ID+"-removed")); err != nil { t.Fatal(err) }
+    if a.providerQuote(base, "gpt-6.1-sol", 100, now) != nil { t.Fatal("removed plugin still priced") }
+}

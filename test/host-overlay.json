@@ -1,0 +1,5 @@
+{
+  "Replace": {
+    "/src/internal/server/openai_release_test.go": "/plugin/test/host-acceptance.go.txt"
+  }
+}

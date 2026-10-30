@@ -1,0 +1,45 @@
+{
+  "protocol": 1,
+  "id": "openai",
+  "name": "OpenAI · USD Standard",
+  "revision": "2026-10-30",
+  "currency": "USD",
+  "sources": [
+    "https://developers.openai.com/api/docs/pricing",
+    "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+    "https://developers.openai.com/api/docs/models/gpt-6.1-terra",
+    "https://developers.openai.com/api/docs/models/gpt-6-luna"
+  ],
+  "providers": [{"host": "api.openai.com", "paths": ["/v1"]}],
+  "models": [
+    {
+      "names": ["gpt-6-astra"],
+      "tiers": [
+        {"maxInput": 272000, "priceIn": 10, "priceInCacheHit": 1, "priceOut": 50},
+        {"maxInput": 1050000, "priceIn": 20, "priceInCacheHit": 2, "priceOut": 75}
+      ]
+    },
+    {
+      "names": ["gpt-6.1-sol"],
+      "tiers": [
+        {"maxInput": 272000, "priceIn": 2, "priceInCacheHit": 0.1, "priceOut": 10},
+        {"maxInput": 1050000, "priceIn": 4, "priceInCacheHit": 0.2, "priceOut": 15}
+      ]
+    },
+    {
+      "names": ["gpt-6.1-terra"],
+      "tiers": [
+        {"maxInput": 272000, "priceIn": 1, "priceInCacheHit": 0.05, "priceOut": 5},
+        {"maxInput": 1050000, "priceIn": 2, "priceInCacheHit": 0.1, "priceOut": 7.5}
+      ]
+    },
+    {
+      "names": ["gpt-6-luna"],
+      "tiers": [
+        {"maxInput": 272000, "priceIn": 0.1, "priceInCacheHit": 0.01, "priceOut": 0.5},
+        {"maxInput": 1050000, "priceIn": 0.2, "priceInCacheHit": 0.02, "priceOut": 0.75}
+      ]
+    }
+  ]
+}
