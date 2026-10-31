@@ -1,4 +1,4 @@
-# OpenAISupporter
+# OpenAISupporter 0.2.0 candidate
 
 Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.com/skyelan1999/aide-pkg-DeepSeekSupporter) 的数据档案结构。MIT 许可，非 OpenAI 官方产品。
 
@@ -6,7 +6,7 @@ Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.c
 
 ## 安装
 
-需要 **Aide 0.1.17.6 RC1 或更新版本**，且包含美元计价支持提交 [`40b6e96`](https://github.com/skyelan1999/aide/commit/40b6e96bead57e19f2f4e5121b147df0a1aeb1db)。旧宿主不支持本档案的 USD 币种；请先升级宿主。
+需要包含 `provider-browser-balance-v1` 能力的 Aide 源码构建或兼容发行版（发行版门槛 0.1.17.6 RC2）。旧宿主请继续使用 0.1.0。美元计价支持提交 [`40b6e96`](https://github.com/skyelan1999/aide/commit/40b6e96bead57e19f2f4e5121b147df0a1aeb1db)。旧宿主不支持本档案的 USD 币种；请先升级宿主。
 
 在 [Aide 插件市场](https://skyelan1999.github.io/aide-pkg-shop/) 搜索 `OpenAISupporter`，安装并启用。也可从 [Release v0.1.0](https://github.com/skyelan1999/aide-pkg-OpenAISupporter/releases/tag/v0.1.0) 下载 ZIP，在 Aide 插件面板导入。
 
@@ -29,7 +29,13 @@ Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.c
 
 ## 余额与凭证
 
-本版**不提供账户余额查询**。官方 [组织 Costs API](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) 使用 Admin Key 返回已发生费用，不是预付余额；本插件不声明该接口，也不读取管理员密钥或调用旧 Dashboard 私有接口。无余额数据不会被伪装成零余额。
+本候选版由插件声明官网页面、金额标签、账户标签、可见项目设置链接和 300 秒查询周期。兼容的 **macOS Aide + Safari** 可在账户卡片点击「关联官网余额」：复用现有 Safari 登录，打开一个专用官网窗口。核对网站显示的组织/账户，确认它对应所选 API Key 后，Aide 每 5 分钟后台刷新该专用窗口并读取预付余额，不必每次手动同步。
+
+请保持专用窗口打开。Safari 关闭、窗口关闭、登录失效、页面布局改变、账户标签或项目标识变化时停止返回当前余额，显示待恢复和最后时间。首次需为 Aide Computer Bridge 授予辅助功能权限。读取不使用屏幕截图、Cookie 导出或任意网页脚本；模型 Key 不发给原生读取器。API Key 与官网账户的关系由用户明确确认，不能通过显示名自动证明组织身份。
+
+官方 [Costs API](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) 查询已发生费用，不是预付余额。本方式是官网登录页面读取，受页面和 Safari 可访问性结构影响，不声称存在公开的 API 余额接口。插件仍是数据档案，不注册工具、不接触 API Key 或网页登录令牌。Windows/Linux 的网页同步尚不支持，原有计价能力保留。
+
+此分支为开发候选，实际原生/Safari 验收和发布状态见中央 [issue #667](https://github.com/skyelan1999/aide/issues/667)。未发行、未更新市场。
 
 ## 开发与验证
 
@@ -43,4 +49,4 @@ ZIP 使用显式白名单、固定时间戳和普通文件权限，不包含测�
 
 官方资料、版本边界和验收记录见 [调研记录](docs/RESEARCH-20261030.md)。
 
-OpenAISupporter is a data-only Aide provider-pricing extension. It supplies a dated USD Standard snapshot for four exact official model IDs. Aide owns credentials and accounting. No balance API or generation tool is registered. The identical architecture-independent package is distributed through GitHub Releases and the Aide marketplace.
+OpenAISupporter is a data-only Aide provider-pricing extension. It supplies a dated USD Standard snapshot for four exact official model IDs. Aide owns credentials and accounting. The data-only browser-balance declaration requires a compatible Aide host; no cookie or model key enters plugin JavaScript. No generation tool is registered. The identical architecture-independent package is distributed through GitHub Releases and the Aide marketplace.
