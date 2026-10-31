@@ -31,7 +31,7 @@ Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.c
 
 本候选版由插件声明官网页面、金额标签、账户标签、可见项目设置链接和 300 秒查询周期。兼容的 **macOS Aide + Safari** 可在账户卡片点击「关联官网余额」：复用现有 Safari 登录，打开一个专用官网窗口。核对网站显示的组织/账户，确认它对应所选 API Key 后，Aide 每 5 分钟后台刷新该专用窗口并读取预付余额，不必每次手动同步。
 
-请保持专用窗口打开。Safari 关闭、窗口关闭、登录失效、页面布局改变、账户标签或项目标识变化时停止返回当前余额，显示待恢复和最后时间。首次需为 Aide Computer Bridge 授予辅助功能权限。读取不使用屏幕截图、Cookie 导出或任意网页脚本；模型 Key 不发给原生读取器。API Key 与官网账户的关系由用户明确确认，不能通过显示名自动证明组织身份。
+请保持带有刷新按钮的普通专用窗口打开。Safari 若按偏好打开为标签页，首次用「窗口 → 将标签页移到新窗口」分离官网，再回 Aide 重试读取；之后无需每次手动同步。Safari 关闭、窗口关闭、登录失效、页面布局改变、账户标签或项目标识变化时停止返回当前余额，显示待恢复和最后时间。首次需为 Aide Computer Bridge 授予辅助功能权限。读取不使用屏幕截图、Cookie 导出或任意网页脚本；模型 Key 不发给原生读取器。API Key 与官网账户的关系由用户明确确认，不能通过显示名自动证明组织身份。
 
 官方 [Costs API](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) 查询已发生费用，不是预付余额。本方式是官网登录页面读取，受页面和 Safari 可访问性结构影响，不声称存在公开的 API 余额接口。插件仍是数据档案，不注册工具、不接触 API Key 或网页登录令牌。Windows/Linux 的网页同步尚不支持，原有计价能力保留。
 
