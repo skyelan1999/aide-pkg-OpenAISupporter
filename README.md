@@ -1,4 +1,4 @@
-# OpenAISupporter 0.2.0 candidate
+# OpenAISupporter 0.2.0
 
 Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.com/skyelan1999/aide-pkg-DeepSeekSupporter) 的数据档案结构。MIT 许可，非 OpenAI 官方产品。
 
@@ -6,9 +6,9 @@ Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.c
 
 ## 安装
 
-需要包含 `provider-browser-balance-v1` 能力的 Aide 源码构建或兼容发行版（发行版门槛 0.1.17.6 RC2）。旧宿主请继续使用 0.1.0。美元计价支持提交 [`40b6e96`](https://github.com/skyelan1999/aide/commit/40b6e96bead57e19f2f4e5121b147df0a1aeb1db)。旧宿主不支持本档案的 USD 币种；请先升级宿主。
+需要包含 `provider-browser-balance-v1` 能力的 Aide 源码构建或兼容发行版（市场发行版门槛 0.1.19.0 RC2；源码还会核对能力标识）。旧宿主请继续使用 0.1.0。美元计价支持提交 [`40b6e96`](https://github.com/skyelan1999/aide/commit/40b6e96bead57e19f2f4e5121b147df0a1aeb1db)。旧宿主不支持本档案的 USD 币种；请先升级宿主。
 
-在 [Aide 插件市场](https://skyelan1999.github.io/aide-pkg-shop/) 搜索 `OpenAISupporter`，安装并启用。也可从 [Release v0.1.0](https://github.com/skyelan1999/aide-pkg-OpenAISupporter/releases/tag/v0.1.0) 下载 ZIP，在 Aide 插件面板导入。
+在 [Aide 插件市场](https://skyelan1999.github.io/aide-pkg-shop/) 搜索 `OpenAISupporter`，安装并启用。也可从 [Release v0.2.0](https://github.com/skyelan1999/aide-pkg-OpenAISupporter/releases/tag/v0.2.0) 下载 ZIP，在 Aide 插件面板导入。
 
 在 Aide 的模型提供商设置中配置 `https://api.openai.com/v1` 及自己的 API Key，再同步或填写所需模型。只有该 HTTPS 官方端点及以下精确模型 ID 命中档案；第三方代理、Azure、区域端点、未知别名和其他模型沿用宿主的手动费率。模型可用性以账户权限和官方返回结果为准。
 
@@ -35,7 +35,7 @@ Aide 的 OpenAI 价格支持插件，沿用 [DeepSeekSupporter](https://github.c
 
 官方 [Costs API](https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/costs) 查询已发生费用，不是预付余额。本方式是官网登录页面读取，受页面和 Safari 可访问性结构影响，不声称存在公开的 API 余额接口。插件仍是数据档案，不注册工具、不接触 API Key 或网页登录令牌。Windows/Linux 的网页同步尚不支持，原有计价能力保留。
 
-此分支为开发候选，实际原生/Safari 验收和发布状态见中央 [issue #667](https://github.com/skyelan1999/aide/issues/667)。未发行、未更新市场。
+0.2.0 按预发布交付，价格仍是 2026-10-30 的历史 Standard 快照，本次没有重新核价。数据包测试和现有安装内容核对通过；历史原生/Safari 验收见中央 [issue #667](https://github.com/skyelan1999/aide/issues/667)。当前账户余额、网页结构和权限需在实际客户端重新确认；本次发布不自动关联账户或授予权限。
 
 ## 开发与验证
 
