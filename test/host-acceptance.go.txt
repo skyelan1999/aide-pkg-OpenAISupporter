@@ -16,7 +16,7 @@ func TestOpenAIReleaseActualBundle(t *testing.T) {
     if err != nil { t.Fatal(err) }
     manifest, _, err := parsePluginBundle(raw)
     if err != nil { t.Fatal(err) }
-    if manifest.ID != "openai-supporter" || manifest.Version != "0.1.0" {
+    if manifest.ID != "openai-supporter" || manifest.Version != "0.2.0" {
         t.Fatalf("unexpected identity: %+v", manifest)
     }
     bundles := t.TempDir()
@@ -54,12 +54,13 @@ func TestOpenAIReleaseActualBundle(t *testing.T) {
     for _, unknown := range []string{"gpt-6.1-sol-preview", "gpt-6-sol", "gpt-image-2.5-sunburst", "ft:gpt-6.1-sol:custom"} {
         if a.providerQuote(base, unknown, 100, now) != nil { t.Fatal("unknown model guessed", unknown) }
     }
-    a.settings.ModelProviders = []ModelProvider{{ID:"openai", BaseURL:base}}
+    a.settings.ModelProviders = []ModelProvider{{ID:"openai", BaseURL:base, ActiveKeyID:"fixture", Keys:[]ModelProviderKey{{ID:"fixture"}}}}
+    supporterVault(t,a,modelProviderVaultID("openai","fixture"),"synthetic-api-key")
     balance := request(a, "GET", "/api/balance?providerId=openai", nil)
     requireStatus(t, balance, 200)
     var balanceData map[string]any
-    if err = json.Unmarshal(balance.Body.Bytes(), &balanceData); err != nil || balanceData["supported"] != false {
-        t.Fatalf("balance must be unsupported: %s %v", balance.Body.String(), err)
+    if err = json.Unmarshal(balance.Body.Bytes(), &balanceData); err != nil || balanceData["supported"] != true || balanceData["balanceAuth"] != "browser-page" {
+        t.Fatalf("expected opt-in browser balance setup: %s %v", balance.Body.String(), err)
     }
     for _, tc := range []struct { input, hit int; cost float64 }{
         {272000,72000,1.4072}, {272001,72001,2.3144002},

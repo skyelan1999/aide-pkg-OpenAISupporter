@@ -16,7 +16,7 @@ test('data-only entry never touches credentials or registers tools', () => {
   assert.equal(manifest.license, 'MIT');
   assert.equal(manifest.version, require('../package.json').version);
   assert.equal(catalog.currency, 'USD');
-  assert.equal(catalog.balance, undefined);
+  assert.deepEqual(catalog.balance, {auth:'browser-page',format:'page-balance',pageURL:'https://platform.openai.com/home',label:'Credit remaining',accountMarker:'Organization',refreshSeconds:300,identityLinkPrefix:'https://platform.openai.com/settings/proj_'});
   assert.equal(catalog.peak, undefined);
 });
 

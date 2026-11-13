@@ -1,11 +1,14 @@
 {
   "id": "openai-supporter",
   "name": "OpenAISupporter",
-  "version": "0.1.0",
-  "description": "OpenAI 官方端点 USD 标准价格快照、缓存命中与长上下文阶梯；凭证由 Aide 保管。",
+  "version": "0.2.0",
+  "description": "OpenAI USD 计价；兼容的 macOS Aide 可复用 Safari 登录，确认账户后自动读取官网预付余额。",
   "author": "skyelan1999",
   "license": "MIT",
   "main": "index.js",
   "homepage": "https://github.com/skyelan1999/aide-pkg-OpenAISupporter",
-  "providerSupport": {"protocol": 1, "catalog": "provider-support.json"}
+  "providerSupport": {
+    "protocol": 1,
+    "catalog": "provider-support.json"
+  }
 }
